@@ -1,6 +1,6 @@
 Z80BusAccess with an Arduino
 
-Based on features from my earlier projects the [ROMEmu](https://github.com/electrickery/ROM-emulator) and the Z80Exersizer, this is a way to access memory and I/O from
+Based on features from my earlier projects the [ROMEmu](https://github.com/electrickery/ROM-emulator) and the [Z80Exersizer](https://www.electrickery.nl/digaud/arduino/Z80exer/), this is a way to access memory and I/O from
 a working Z80 CPU based computer. It uses a simple DMA technique by applying the BUSREQ* signal (and wait for BUSACK*).
 For systems with non-critical timing constraints, the CPU doesn't even have to be reset. For the first testing system, a MicroProfessor MPF-IB it provides an easy way to get programs into memory using the well-known hex-intel file format.
 
