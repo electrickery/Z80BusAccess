@@ -52,5 +52,12 @@ The current hardware is an Arduino Mega 2650 plus shield. The shield is passive,
 		#define Z80WAIT  59 // A5 // WT
 		#define Z80BUSRQ 60 // A6 // BQ
 		#define Z80RESET 61 // A7 // RT
+		
+My (quite inperfect first) version of the board looks like this:
+
+![Arduino Mega 2560 with Z80 CPU pin shield](z80exerAsBusAccess.jpg)
+
+The TRS80 connector is used in exer-mode for a TRS-80 model 1 expansion connector. 
+For bus access mode it is currently not supported.
 
 A more compact version, based on an Arduino Nano (Every) and a port extender is planned.
