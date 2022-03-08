@@ -11,6 +11,8 @@ byte setBufPointer = 0;
 #define LED 13
 
 uint16_t repeatRate = 1 < 9;
+#define RECORDSIZE 32
+#define DATARECORDTYPE 0
 
 #define DUMPPAGE 0x0100
 unsigned int lastEndAddress = 0;
@@ -135,6 +137,9 @@ void commandInterpreter() {
     case ':':  // hex-intel record
       hexIntelInterpreter();
       break;
+    case ';':
+      generateDataRecords();
+      break;
     default:
       Serial.print(bufByte);
       Serial.print(" ");
@@ -163,6 +168,8 @@ void usage() {
   Serial.println("Fssss-eeee:v     - fill a memory range with a value");
   Serial.println(":ssaaaatthhhh...hhcc - accepts hex intel record");
   Serial.println("H                - This help text");
+  Serial.println(";ssss-eeee       - Generate hex intel data records");
+  Serial.println("E                - Generate hex intel end record");
 }
 
 void dumpMemory() {
@@ -250,18 +257,15 @@ void hexIntelInterpreter() {
   count += getNibble(serialBuffer[2]);
   sumCheck += count;
   unsigned int addressLSB, addressMSB, baseAddress;
-  addressMSB  = getNibble(serialBuffer[3]) * (1 << 4);
-  addressMSB += getNibble(serialBuffer[4]);
-  addressLSB  = getNibble(serialBuffer[5]) * (1 << 4);
-  addressLSB += getNibble(serialBuffer[6]);
+  addressMSB  = get8BitValue(3);
+  addressLSB  = get8BitValue(5);
   sumCheck += addressMSB;
   sumCheck += addressLSB;
   baseAddress = (addressMSB << 8) + addressLSB;
 //  printWord(baseAddress - addressOffset);
 //  Serial.println();
   unsigned int recordType;
-  recordType  = getNibble(serialBuffer[7]) * (1 << 4);
-  recordType += getNibble(serialBuffer[8]);
+  recordType  = get8BitValue(7);
   if (recordType == 1) { // End of file record type
     triStating();
     return;
@@ -275,17 +279,15 @@ void hexIntelInterpreter() {
   dataBusWriteMode();
   for (i = 0; i < count; i++) {
     sbOffset = (i * 2) + 9;
-    value  = getNibble(serialBuffer[sbOffset]) * (1 << 4);
-    value += getNibble(serialBuffer[sbOffset + 1]); 
+    value     = get8BitValue(sbOffset); 
     sumCheck +=  value;
     writeByte(baseAddress + i - addressOffset, value);
   }
   triStating();
   unsigned sumCheckValue;
   sbOffset += 2;
-  sumCheckValue  = getNibble(serialBuffer[sbOffset]) * (1 << 4);
-  sumCheckValue += getNibble(serialBuffer[sbOffset + 1]);
-  sumCheck += sumCheckValue;
+  sumCheckValue  = get8BitValue(sbOffset);
+  sumCheck      += sumCheckValue;
   sumCheck &= 0xFF;
   if (sumCheck == 0) {
     printWord(baseAddress - addressOffset);
@@ -294,6 +296,49 @@ void hexIntelInterpreter() {
     Serial.print("Sumcheck incorrect: ");
     printByte(sumCheck); 
   }
+}
+
+void generateDataRecords() {
+  unsigned int startAddress;
+  unsigned int endAddress;
+  startAddress = get16BitValue(1);
+  endAddress   = get16BitValue(6);
+  printWord(startAddress);
+  Serial.print("-");
+  printWord(endAddress);
+  Serial.println();
+
+  unsigned int i, j;
+  unsigned char addressMSB, addressLSB, data;
+  unsigned char sumCheckCount = 0;
+
+  dataBusReadMode();  
+  for (i = startAddress; i < endAddress; i += RECORDSIZE) {
+    sumCheckCount = 0;
+    Serial.print(":");
+    printByte(RECORDSIZE);  
+    sumCheckCount -= RECORDSIZE;
+    addressMSB = i >> 8;
+    addressLSB = i & 0xFF;
+    printByte(addressMSB);
+    printByte(addressLSB);
+    sumCheckCount -= addressMSB;
+    sumCheckCount -= addressLSB;
+    printByte(DATARECORDTYPE);
+    sumCheckCount -= DATARECORDTYPE;
+    for (j = 0; j < RECORDSIZE; j++) {
+      data = readByte(i + j);
+      printByte(data);
+      sumCheckCount -= data;
+    }
+    printByte(sumCheckCount);
+    Serial.println();
+  }
+  triStating();
+}
+
+void generateEndRecord() {
+  Serial.println(":00000001FF");
 }
 
 void setValue() {
