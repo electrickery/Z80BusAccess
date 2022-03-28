@@ -2,9 +2,9 @@ Z80BusAccess with an Arduino
 
 Based on features from my earlier projects the [ROMEmu](https://github.com/electrickery/ROM-emulator) and the [Z80Exersizer](https://www.electrickery.nl/digaud/arduino/Z80exer/), this is a way to access memory and I/O from
 a working Z80 CPU based computer. It uses a simple DMA technique by applying the BUSREQ* signal (and wait for BUSACK*).
-Then the bus is tri-stated, allowing to read and write all memory and I/O addresses.
+Then the bus is tri-stated, allowing the BusAccess board to read and write all memory and I/O addresses. When BUSREQ* is cleared, the CPU continues where it was. The most interesting use-case is getting programs into the target system, but all memory and I/O operations can be executed, only not at original speed and timing.
 
-For systems with non-critical timing constraints, the CPU doesn't even have to be reset, as long as you don't modify the code being executed. For the first testing system, a [MicroProfessor MPF-IB](https://en.wikipedia.org/wiki/Microprofessor) provides an easy way to get programs (side-load?) into memory using the well-known hex-intel file format. All the board monitor needs to have is a way to execute the new code. For the MPF this is: [ADDR] n n n n [GO].
+For systems with non-critical timing constraints, the CPU doesn't even have to be reset, as long as you don't modify the code being executed. For the first testing system, a [MicroProfessor MPF-IB](https://en.wikipedia.org/wiki/Microprofessor) provides an easy way to get programs (side-load?) into memory using the well-known hex-intel file format. All the board monitor needs to have is a way to execute the new code. For the MPF this is for example: [ADDR] 2 0 0 0 [GO].
 
 The current hardware is an Arduino Mega 2650 plus shield. The shield is passive, bringing 37 I/O-pins to a Z80 CPU bus:
 
@@ -59,7 +59,7 @@ My (quite imperfect first) version of the board looks like this:
 
 ![Arduino Mega 2560 with Z80 CPU pin shield](z80exerAsBusAccess.jpg)
 
-The TRS80 connector is used in exer-mode for a TRS-80 model 1 expansion connector. 
+The TRS80 connector on the shield is used in exer-mode for a TRS-80 model 1 expansion connector. 
 For bus access mode it is currently not supported.
 
 A more compact version, based on a more compact Arduino-type microcontroller and a port extender is planned.
