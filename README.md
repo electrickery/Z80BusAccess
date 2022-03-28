@@ -2,7 +2,9 @@ Z80BusAccess with an Arduino
 
 Based on features from my earlier projects the [ROMEmu](https://github.com/electrickery/ROM-emulator) and the [Z80Exersizer](https://www.electrickery.nl/digaud/arduino/Z80exer/), this is a way to access memory and I/O from
 a working Z80 CPU based computer. It uses a simple DMA technique by applying the BUSREQ* signal (and wait for BUSACK*).
-For systems with non-critical timing constraints, the CPU doesn't even have to be reset. For the first testing system, a MicroProfessor MPF-IB it provides an easy way to get programs into memory using the well-known hex-intel file format.
+Then the bus is tri-stated, allowing to read and write all memory and I/O addresses.
+
+For systems with non-critical timing constraints, the CPU doesn't even have to be reset, as long as you don't modify the code being executed. For the first testing system, a [MicroProfessor MPF-IB](https://en.wikipedia.org/wiki/Microprofessor) provides an easy way to get programs (side-load?) into memory using the well-known hex-intel file format. All the board monitor needs to have is a way to execute the new code. For the MPF this is: [ADDR] n n n n [GO].
 
 The current hardware is an Arduino Mega 2650 plus shield. The shield is passive, bringing 37 I/O-pins to a Z80 CPU bus:
 
