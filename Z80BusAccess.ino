@@ -125,6 +125,11 @@ void commandInterpreter() {
     case 'f':
       setValue();
       break;
+    case 'I':
+    case 'i':
+      generateDataRecords();
+      generateEndRecord();
+      break;
     case 'T':  // 
       testBus();
       break;
@@ -136,9 +141,6 @@ void commandInterpreter() {
       break; 
     case ':':  // hex-intel record
       hexIntelInterpreter();
-      break;
-    case ';':
-      generateDataRecords();
       break;
     default:
       Serial.print(bufByte);
@@ -166,6 +168,7 @@ void usage() {
   Serial.println("Cssss-eeee       - Calculate checksum from ssss to eeee");
   Serial.println("D[ssss[-eeee]|+] - Dump memory from ssss to eeee (default 256 bytes)");
   Serial.println("Fssss-eeee:v     - fill a memory range with a value");
+  Serial.println("Issss-eeee       - Generate hex intel data records");
   Serial.println(":ssaaaatthhhh...hhcc - accepts hex intel record");
   Serial.println("H                - This help text");
   Serial.println(";ssss-eeee       - Generate hex intel data records");
